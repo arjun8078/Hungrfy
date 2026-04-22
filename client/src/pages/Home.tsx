@@ -1,4 +1,5 @@
 import {  useEffect, useRef, useState } from "react"
+import { useAuth } from "../context/AuthContext"
 
 
 type Restaurent={
@@ -10,12 +11,16 @@ type Restaurent={
 }
 
 
+
+
 export function Home(){
 
     const [restaurants, setRestaurants] = useState<Restaurent[]>([])
     const [searchTerm, setSearchTerm] = useState("")
     const [loading,setLoading]= useState(true)
     const [error, setError] = useState<string | null>(null)
+
+    const { user, login, logout, isLoggedIn } = useAuth()
 
     const searchFocus=useRef<HTMLInputElement>(null);
 
@@ -67,6 +72,22 @@ export function Home(){
     return <>
          <div>
       <h1>PlateUp</h1>
+      <div>
+  {isLoggedIn ? (
+    <div>
+      <span>Hello, {user?.name} {user?.email}</span>
+      <button onClick={logout}>Logout</button>
+    </div>
+  ) : (
+    <button onClick={() => login({ 
+      name: 'Arjun', 
+      email: 'arjun@test.com', 
+      role: 'customer' 
+    })}>
+      Quick Login
+    </button>
+  )}
+</div>
       <input
        ref={searchFocus}
         type="text"
