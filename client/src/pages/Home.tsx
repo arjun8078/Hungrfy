@@ -1,50 +1,43 @@
 import {  useEffect, useRef, useState } from "react"
-import { useAuth } from "../context/AuthContext"
+// import { useAuth } from "../context/AuthContext"
+import { RestuarentCard } from "../components/RestuarentCard"
+import type { Restaurant } from "../types/restuarent"
 
 
-type Restaurent={
-    id:number,
-    name:string,
-    cuisine:string,
-    area:string,
-    rating:number
-}
+// export type Restaurant = {
+//   id: number
+//   name: string
+//   cuisine: string
+//   area: string
+//   rating: number
+// }
 
 
 
 
 export function Home(){
 
-    const [restaurants, setRestaurants] = useState<Restaurent[]>([])
-    const [searchTerm, setSearchTerm] = useState("")
-    const [loading,setLoading]= useState(true)
-    const [error, setError] = useState<string | null>(null)
+ const [restaurants, setRestaurants] = useState<Restaurant[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-    const { user, login, logout, isLoggedIn } = useAuth()
+  const searchRef = useRef<HTMLInputElement>(null)
 
-    const searchFocus=useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!loading) searchRef.current?.focus()
+  }, [loading])
 
-    const apiCount=useRef(0)
+  useEffect(() => {
+    const controller = new AbortController()
 
-    useEffect(()=>{
-        if (!loading) {
-    searchFocus.current?.focus()
-  }
-    },[loading])
-
-     useEffect(() => {
-        const controller=new AbortController()
-        apiCount.current+=1
-         console.log('API called', apiCount.current, 'times')
-        fetch('https://jsonplaceholder.typicode.com/users',{signal: controller.signal}).then(
-            res=>{
-                if(!res.ok){
-                    throw new Error("Failed to fetch restaurants")
-                }
-                return res.json()
-            }
-        ).then(data=>{
-             const mapped = data.slice(0, 6).map((u: any) => ({
+    fetch('https://jsonplaceholder.typicode.com/users', { signal: controller.signal })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch')
+        return res.json()
+      })
+      .then(data => {
+        const mapped = data.slice(0, 6).map((u: any) => ({
           id: u.id,
           name: u.name,
           cuisine: 'Kerala',
@@ -53,56 +46,68 @@ export function Home(){
         }))
         setRestaurants(mapped)
         setLoading(false)
-        }).catch(err=>{
-             if (err.name === 'AbortError') return  
-            setError(err.message)
-            setLoading(false)
-        })
+      })
+      .catch(err => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+        setLoading(false)
+      })
 
-        return () => controller.abort()
+    return () => controller.abort()
   }, [])
-  
+
   const filtered = restaurants.filter(r =>
     r.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (loading) return <p>Loading restaurants...</p>
-  if(error) return <p>Error: {error}</p>
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-gray-400 text-sm">Loading restaurants...</div>
+    </div>
+  )
 
-    return <>
-         <div>
-      <h1>PlateUp</h1>
-      <div>
-  {isLoggedIn ? (
-    <div>
-      <span>Hello, {user?.name} {user?.email}</span>
-      <button onClick={logout}>Logout</button>
+  if (error) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-red-400 text-sm">Error: {error}</div>
     </div>
-  ) : (
-    <button onClick={() => login({ 
-      name: 'Arjun', 
-      email: 'arjun@test.com', 
-      role: 'customer' 
-    })}>
-      Quick Login
-    </button>
-  )}
-</div>
-      <input
-       ref={searchFocus}
-        type="text"
-        
-        placeholder="Search restaurants..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      {filtered.map(restaurant => (
-        <div key={restaurant.id}>
-          <h3>{restaurant.name}</h3>
-          <p>{restaurant.cuisine} • {restaurant.area} • ⭐ {restaurant.rating}</p>
+  )
+
+  return (
+    <div className="space-y-6">
+
+      {/* Search bar */}
+      <div className="relative">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+          🔍
+        </span>
+        <input
+          ref={searchRef}
+          type="text"
+          placeholder="Search restaurants, cuisines, or areas..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 transition bg-white"
+        />
+      </div>
+
+      {/* Results count */}
+      <p className="text-sm text-gray-500">
+        {filtered.length} restaurant{filtered.length !== 1 ? 's' : ''} found
+      </p>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map(restaurant => (
+          <RestuarentCard key={restaurant.id} restaurent={restaurant} />
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-16 text-gray-400 text-sm">
+          No restaurants found for "{searchTerm}"
         </div>
-      ))}
-      {filtered.length === 0 && <p>No restaurants found</p>}
+      )}
+
     </div>
-    </>
+  )
 }
