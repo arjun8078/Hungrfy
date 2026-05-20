@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 export function Login(){
 
 
     const { login } = useAuth()
+      const navigate = useNavigate()
 
      const [formData, setFormData] = useState({
     email: '',
@@ -38,6 +40,7 @@ export function Login(){
     setErrors(newErrors)
     return valid
   }
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -102,9 +105,12 @@ export function Login(){
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Don't have an account?{' '}
-          <span className="text-orange-500 font-medium cursor-pointer hover:underline">
-            Register
-          </span>
+          <span 
+  onClick={() => navigate('/register')}
+  className="text-orange-500 font-medium cursor-pointer hover:underline"
+>
+  Register
+</span>
         </p>
 
       </div>

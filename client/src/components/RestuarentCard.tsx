@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import type { Restaurant } from "../types/restuarent"
 
 
@@ -5,12 +6,17 @@ type Props = {
     restaurent: Restaurant
 }
 
+
+
 export function RestuarentCard({restaurent}:Props) {
+
+  const navigate=useNavigate()
 
     return(
         <>
        <div
             key={restaurent.id}
+            onClick={() => navigate(`/restaurant/${restaurent.id}`)}
             className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition cursor-pointer"
           >
             {/* Image placeholder */}

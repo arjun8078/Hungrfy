@@ -1,4 +1,4 @@
-import {  useEffect, useRef, useState } from "react"
+import {  useEffect, useMemo, useRef, useState } from "react"
 // import { useAuth } from "../context/AuthContext"
 import { RestuarentCard } from "../components/RestuarentCard"
 import type { Restaurant } from "../types/restuarent"
@@ -21,6 +21,8 @@ export function Home(){
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [cuisine, setCuisine] = useState('all')      // ← add this
+const [vegOnly, setVegOnly] = useState(false) 
 
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -29,36 +31,37 @@ export function Home(){
   }, [loading])
 
   useEffect(() => {
-    const controller = new AbortController()
+    const timer = setTimeout(() => {
+    setRestaurants([
+      { id: 1, name: 'Paragon Restaurant', cuisine: 'Kerala', area: 'Kozhikode', rating: 4.5,isVeg: false },
+      { id: 2, name: 'Dhe Puttu', cuisine: 'Kerala', area: 'Kochi', rating: 4.2,isVeg: true },
+      { id: 3, name: 'Thalassery Biriyani House', cuisine: 'Malabar', area: 'Kannur', rating: 4.7,isVeg: false },
+    ])
+    setLoading(false)
+  }, 800)
 
-    fetch('https://jsonplaceholder.typicode.com/users', { signal: controller.signal })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch')
-        return res.json()
-      })
-      .then(data => {
-        const mapped = data.slice(0, 6).map((u: any) => ({
-          id: u.id,
-          name: u.name,
-          cuisine: 'Kerala',
-          area: u.address.city,
-          rating: parseFloat((Math.random() * 2 + 3).toFixed(1))
-        }))
-        setRestaurants(mapped)
-        setLoading(false)
-      })
-      .catch(err => {
-        if (err.name === 'AbortError') return
-        setError(err.message)
-        setLoading(false)
-      })
-
-    return () => controller.abort()
+  return () => clearTimeout(timer)
   }, [])
 
-  const filtered = restaurants.filter(r =>
-    r.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // const filtered = restaurants.filter(r =>
+  //   r.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // )]
+
+  const cuisines = useMemo(() => {
+  const unique = [...new Set(restaurants.map(r => r.cuisine))]
+  return ['all', ...unique]
+}, [restaurants])
+  
+
+ const filtered = useMemo(() => {
+  return restaurants.filter(r => {
+    const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCuisine = cuisine === 'all' || r.cuisine === cuisine
+    const matchesVeg = !vegOnly || r.isVeg
+
+    return matchesSearch && matchesCuisine && matchesVeg
+  })
+}, [restaurants, searchTerm, cuisine, vegOnly])
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -89,6 +92,34 @@ export function Home(){
           className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 transition bg-white"
         />
       </div>
+      <div className="flex items-center gap-2 flex-wrap">
+  {cuisines.map(c => (
+    <button
+      key={c}
+      onClick={() => setCuisine(c)}
+      className={`px-4 py-1.5 rounded-full text-sm font-medium transition border ${
+        cuisine === c
+          ? 'bg-orange-500 text-white border-orange-500'
+          : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
+      }`}
+    >
+      {c === 'all' ? 'All' : c}
+    </button>
+  ))}
+
+  {/* Veg toggle */}
+  <button
+    onClick={() => setVegOnly(!vegOnly)}
+    className={`px-4 py-1.5 rounded-full text-sm font-medium transition border flex items-center gap-2 ${
+      vegOnly
+        ? 'bg-green-500 text-white border-green-500'
+        : 'bg-white text-gray-600 border-gray-200 hover:border-green-300'
+    }`}
+  >
+    <span className="w-3 h-3 rounded-sm border-2 border-current" />
+    Veg only
+  </button>
+</div>
 
       {/* Results count */}
       <p className="text-sm text-gray-500">
