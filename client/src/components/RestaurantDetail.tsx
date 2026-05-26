@@ -3,62 +3,7 @@ import type { RestaurantDetail as RestaurantDetailType, MenuItem } from '../type
 import { useEffect, useState } from "react"
 import {api} from '../services/api'
 
-// const mockRestaurants: RestaurantDetailType[] = [
-//   {
-//     id: 1,
-//     name: 'Paragon Restaurant',
-//     cuisine: 'Kerala',
-//     area: 'Kozhikode',
-//     rating: 4.5,
-//     description: 'One of the most iconic restaurants in Kerala, famous for authentic Malabar cuisine since 1939.',
-//     address: 'Kannur Road, Kozhikode, Kerala',
-//     phone: '+91 9876543210',
-//     openingHours: '11:00 AM - 11:00 PM',
-//     menu: [
-//       { id: 1, name: 'Fish Curry', price: 180, category: 'main course', isVeg: false },
-//       { id: 2, name: 'Prawn Biryani', price: 320, category: 'main course', isVeg: false },
-//       { id: 3, name: 'Papadam', price: 20, category: 'starters', isVeg: true },
-//       { id: 4, name: 'Banana Halwa', price: 60, category: 'dessert', isVeg: true },
-//       { id: 5, name: 'Sulaimani Tea', price: 40, category: 'drinks', isVeg: true },
-//     ]
-//   },
-//   {
-//     id: 2,
-//     name: 'Dhe Puttu',
-//     cuisine: 'Kerala',
-//     area: 'Kochi',
-//     rating: 4.2,
-//     description: 'Famous for its unique puttu varieties and traditional Kerala breakfast items.',
-//     address: 'MG Road, Kochi, Kerala',
-//     phone: '+91 9876543211',
-//     openingHours: '7:00 AM - 10:00 PM',
-//     menu: [
-//       { id: 1, name: 'Puttu & Kadala', price: 80, category: 'main course', isVeg: true },
-//       { id: 2, name: 'Appam & Stew', price: 120, category: 'main course', isVeg: true },
-//       { id: 3, name: 'Banana Fritter', price: 40, category: 'starters', isVeg: true },
-//       { id: 4, name: 'Payasam', price: 60, category: 'dessert', isVeg: true },
-//       { id: 5, name: 'Filter Coffee', price: 30, category: 'drinks', isVeg: true },
-//     ]
-//   },
-//   {
-//     id: 3,
-//     name: 'Thalassery Biriyani House',
-//     cuisine: 'Malabar',
-//     area: 'Kannur',
-//     rating: 4.7,
-//     description: 'Authentic Thalassery biryani made with the traditional Kaima rice and fresh spices.',
-//     address: 'Town Hall Road, Kannur, Kerala',
-//     phone: '+91 9876543212',
-//     openingHours: '12:00 PM - 11:00 PM',
-//     menu: [
-//       { id: 1, name: 'Thalassery Biryani', price: 280, category: 'main course', isVeg: false },
-//       { id: 2, name: 'Chicken Fry', price: 220, category: 'starters', isVeg: false },
-//       { id: 3, name: 'Raita', price: 40, category: 'starters', isVeg: true },
-//       { id: 4, name: 'Unniyappam', price: 50, category: 'dessert', isVeg: true },
-//       { id: 5, name: 'Lime Juice', price: 40, category: 'drinks', isVeg: true },
-//     ]
-//   }
-// ]
+
 
 function MenuSection({ title, items }: { title: string, items: MenuItem[] }){
 if (items.length === 0) return null
