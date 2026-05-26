@@ -21,7 +21,7 @@ export function Home(){
  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
-  const [, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [cuisine, setCuisine] = useState('all')      // ← add this
 const [vegOnly, setVegOnly] = useState(false) 
 
@@ -74,11 +74,11 @@ const [vegOnly, setVegOnly] = useState(false)
     </div>
   )
 
-  // if (error) return (
-  //   <div className="flex items-center justify-center h-64">
-  //     <div className="text-red-400 text-sm">Error: {error}</div>
-  //   </div>
-  // )
+  if (error) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-red-400 text-sm">Error: {error}</div>
+    </div>
+  )
 
   return (
     <div className="space-y-6">
