@@ -2,6 +2,7 @@ import {  useEffect, useMemo, useRef, useState } from "react"
 // import { useAuth } from "../context/AuthContext"
 import { RestuarentCard } from "../components/RestuarentCard"
 import type { Restaurant } from "../types/restuarent"
+import {api} from "../services/api"
 
 
 // export type Restaurant = {
@@ -20,7 +21,7 @@ export function Home(){
  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
-  // const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [cuisine, setCuisine] = useState('all')      // ← add this
 const [vegOnly, setVegOnly] = useState(false) 
 
@@ -31,16 +32,20 @@ const [vegOnly, setVegOnly] = useState(false)
   }, [loading])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-    setRestaurants([
-      { id: 1, name: 'Paragon Restaurant', cuisine: 'Kerala', area: 'Kozhikode', rating: 4.5,isVeg: false },
-      { id: 2, name: 'Dhe Puttu', cuisine: 'Kerala', area: 'Kochi', rating: 4.2,isVeg: true },
-      { id: 3, name: 'Thalassery Biriyani House', cuisine: 'Malabar', area: 'Kannur', rating: 4.7,isVeg: false },
-    ])
-    setLoading(false)
-  }, 800)
+    const controller = new AbortController()
 
-  return () => clearTimeout(timer)
+  api.getRestaurants()
+    .then(data => {
+      setRestaurants(data)
+      setLoading(false)
+    })
+    .catch(err => {
+      if (err.name === 'AbortError') return
+      setError(err.message)
+      setLoading(false)
+    })
+
+  return () => controller.abort()
   }, [])
 
   // const filtered = restaurants.filter(r =>
