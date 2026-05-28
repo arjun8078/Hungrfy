@@ -16,7 +16,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.use('/api/restaurants', restaurantRoutes)
+app.use('/restaurants', restaurantRoutes)
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hungryfy API running' })
