@@ -8,7 +8,11 @@ const restaurantRoutes = require('./routes/restuarents');
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173'
+     origin: [
+    'http://localhost:5173',
+    'https://hungrfy.vercel.app'
+  ]
+    
 }));
 app.use(express.json());
 
