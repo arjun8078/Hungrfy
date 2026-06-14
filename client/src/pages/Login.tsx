@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
 import { useNavigate } from "react-router-dom"
+import {api} from '../services/api'
 
 export function Login(){
 
@@ -46,10 +47,39 @@ export function Login(){
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit =async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    login({ name: 'Arjun', email: formData.email, role: 'customer' })
+
+    try{
+      const response=await api.login(
+        formData.email,
+        formData.password
+      )
+
+      console.log('Login response:', response)
+    console.log('User role:', response.user.role)
+
+      localStorage.setItem('token',response.token)
+
+        console.log('About to navigate to:', response.user.role === 'owner' ? '/owner/dashboard' : '/')
+        login(response.user)
+        if (response.user.role === 'owner') {
+  navigate('/owner/dashboard')
+} else {
+  navigate('/')
+}
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    catch(err:any){
+      console.log('Login failed',err);
+      setErrors(prev=>({
+        ...prev,
+        email:err.message
+      }))
+      
+    }
+  
   }
     return <>
         <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">

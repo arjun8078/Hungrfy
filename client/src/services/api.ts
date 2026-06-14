@@ -10,5 +10,36 @@ export const api = {
     const res = await fetch(`${BASE_URL}/restaurants/${id}`)
     if (!res.ok) throw new Error('Failed to fetch restaurant')
     return res.json()
+  },
+
+  register:async(name:string,email:string,password:string,role:string)=>{
+    const res=await fetch(`${BASE_URL}/api/auth/register`,{
+      method:'POST',
+      headers:{'content-type': 'application/json'},
+      body:JSON.stringify({name,email,password,role})
+    })
+    if (!res.ok) throw new Error('Failed to register')
+    return res.json()
+  },
+  login:async(email:string,password:string)=>{
+    const res=await fetch(`${BASE_URL}/api/auth/login`,{
+      method:'POST',
+      headers:{'Content-type': 'application/json'},
+      body:JSON.stringify({email,password})
+    })
+
+    if (!res.ok) throw new Error('Failed to login')
+    return res.json()
+
+  },
+
+  getProfile:async(token:string)=>{
+    const res=await fetch(`${BASE_URL}/api/auth/me`,{
+      method:'GET',
+      headers:{'Content-type':'application/json','Authorization':`Bearer ${token}`}
+      
+    })
+    if (!res.ok) throw new Error('Failed to fetch profile')
+    return res.json()
   }
 }

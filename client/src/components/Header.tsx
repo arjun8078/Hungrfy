@@ -14,7 +14,7 @@ export function Header({ onMenuClick } : Headerprops) {
         <span className="block w-5 h-0.5 bg-gray-600 mb-1"></span>
         <span className="block w-5 h-0.5 bg-gray-600"></span>
       </button>
-      <h1 className="text-xl font-bold text-gray-900">PlateUp</h1>
+      <h1 className="text-xl font-bold text-gray-900">Hungryfy</h1>
       <div className="w-9" />
     </header>
         </>

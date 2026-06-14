@@ -1,12 +1,14 @@
 import { useReducer, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import {api} from '../services/api'
 
  const initialState={
         name:'',
         email:'',
         password:'',
-        confirmPassword:''
+        confirmPassword:'',
+        role:''
     }
 
     type State= typeof initialState
@@ -31,7 +33,8 @@ export function Register(){
     name: '', 
     email: '', 
     password: '', 
-    confirmPassword: '' 
+    confirmPassword: '' ,
+    role:''
   })
 
   const { login } = useAuth()
@@ -47,7 +50,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const validate = () => {
     let valid = true
-    const newErrors = { name: '', email: '', password: '', confirmPassword: '' }
+    const newErrors = { name: '', email: '', password: '', confirmPassword: '' , role:'' }
 
     if (!state.name) {
       newErrors.name = 'Name is required'
@@ -77,16 +80,48 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       newErrors.confirmPassword = 'Passwords do not match'
       valid = false
     }
+    if (!state.role) {
+  newErrors.role = 'Please select your role'
+  valid = false
+}
 
     setErrors(newErrors)
     return valid
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isFormValid=()=>{
+    return state.name && state.email && state.password && state.confirmPassword && state.role && /\S+@\S+\.\S+/.test(state.email) && state.password.length >= 6 && state.password === state.confirmPassword 
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    login({ name: state.name, email: state.email, role: 'customer' })
-    navigate('/')
+
+
+    try {
+      const response=await api.register(
+        state.name,
+        state.email,
+        state.password,
+        state.role
+      )
+      localStorage.setItem('token', response.token)
+      login(response.user)
+      if (response.user.role === 'owner') {
+  navigate('/owner/dashboard')
+} else {
+  navigate('/')
+}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+  setErrors(prev => ({
+    ...prev,
+    email: error.message
+  }))
+}
+    
+    
+
   }
 
    
@@ -167,10 +202,45 @@ return (
               <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
             )}
           </div>
+          <div>
+  <label className="block text-sm font-medium text-gray-700 mb-3">
+    I am a:
+  </label>
+  <div className="flex gap-3">
+    <button
+      type="button"
+      onClick={() => dispatch({ type: 'UPDATE_FIELD', field: 'role', value: 'customer' })}
+      className={`flex-1 py-2 rounded-lg font-medium transition ${
+        state.role === 'customer'
+          ? 'bg-orange-500 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      🍽️ Customer
+    </button>
+    <button
+      type="button"
+      onClick={() => dispatch({ type: 'UPDATE_FIELD', field: 'role', value: 'owner' })}
+      className={`flex-1 py-2 rounded-lg font-medium transition ${
+        state.role === 'owner'
+          ? 'bg-orange-500 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      🏪 Owner
+    </button>
+  </div>
+  {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+</div>
 
           <button
             type="submit"
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-lg transition"
+            disabled={!isFormValid()}
+            className={`w-full font-medium py-3 rounded-lg transition ${
+  isFormValid()
+    ? 'bg-orange-500 hover:bg-orange-600 text-white cursor-pointer'
+    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+}`}
           >
             Create account
           </button>

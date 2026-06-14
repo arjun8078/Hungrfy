@@ -3,7 +3,7 @@ const cors = require('cors');
 // const {pool} = require('./db');
 require('dotenv').config();
 const restaurantRoutes = require('./routes/restuarents');
-
+const authRoutes = require('./routes/auth')
 
 const app = express();
 
@@ -15,7 +15,7 @@ app.use(cors({
     
 }));
 app.use(express.json());
-
+app.use('/api/auth', authRoutes)
 app.use('/restaurants', restaurantRoutes)
 
 app.get('/', (req, res) => {
