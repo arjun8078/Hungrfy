@@ -1,4 +1,5 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
+import { api } from "../services/api";
 
 export function OwnerDashboard() {
   const initialState = {
@@ -13,7 +14,8 @@ export function OwnerDashboard() {
     openingHour: '',
     phone: ''
   }
-
+  const [isSubmitting, setIsSubmitting] = useState(false)  
+  const [message, setMessage] = useState('')        
   type State = typeof initialState
   type Action =
     | { type: "UPDATE_FIELD"; field: keyof State; value: string | boolean }
@@ -32,13 +34,39 @@ export function OwnerDashboard() {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isValidForm()) {
       console.log('Form is invalid')
+      
       return
     }
-    console.log('Form is valid, ready to submit:', state)
+     setIsSubmitting(true)
+    setMessage('') 
+    try{
+      
+      const token=localStorage.getItem('token')
+      if (!token) {
+  setMessage('❌ No token found. Please login first.')
+  return
+}
+      const response=await api.addRestaurant(state,token)
+      console.log('Restaurant added successfully:', response)
+      
+      setMessage('✅ Restaurant added successfully!')
+       dispatch({ type: 'RESET' })
+      
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    catch(err:any){
+      console.log(err)
+      setMessage(`❌ ${err.message}`)
+    }
+    finally {
+    setIsSubmitting(false)
+  }
+    
+  
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -215,19 +243,20 @@ export function OwnerDashboard() {
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
+      {message && <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded">{message}</div>}
 
           {/* Buttons */}
           <div className="flex gap-4 pt-4">
             <button
               type="submit"
-              disabled={!isValidForm()}
+               disabled={!isValidForm() || isSubmitting}
               className={`flex-1 py-3 rounded-lg font-medium transition ${
                 isValidForm()
                   ? 'bg-orange-500 text-white hover:bg-orange-600'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Add Restaurant
+             {isSubmitting ? 'Adding...' : 'Add Restaurant'}
             </button>
             <button
               type="button"

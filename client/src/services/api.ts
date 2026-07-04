@@ -1,4 +1,17 @@
-const BASE_URL=import .meta.env.VITE_API_URL 
+type RestaurantData = {
+  name: string
+  cuisine: string
+  area: string
+  address: string
+  lat: string
+  long: string
+  openingHour: string
+  phone: string
+  isVeg: boolean
+  description: string
+}
+
+const BASE_URL=import.meta.env.VITE_API_URL 
 export const api = {
   getRestaurants: async () => {
     const res = await fetch(`${BASE_URL}/restaurants`)
@@ -41,5 +54,23 @@ export const api = {
     })
     if (!res.ok) throw new Error('Failed to fetch profile')
     return res.json()
+  },
+
+  addRestaurant:async(restaurantData: RestaurantData, token: string)=>{
+    const res=await fetch(`${BASE_URL}/restaurants`,{
+       method:'POST',
+      headers:{
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${token}`
+      },
+    body:JSON.stringify(restaurantData)
+  }
+  )
+  if(!res.ok ){
+   const error = await res.json()
+  throw new Error(error.error || 'Adding failed')  
+    
+  }
+  return await res.json()
   }
 }
